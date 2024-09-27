@@ -104,33 +104,68 @@ def mode_free():
         mode_free()  # Charger une nouvelle fenêtre avec de nouveaux mots
 
 # Fonction pour le mode Exercice
+# Fonction pour le mode Exercice avec une fenêtre similaire à "Free"
+# Fonction pour le mode Exercice avec feedback visuel
 def mode_exercice():
-    global compteur_appris, mots_traduits
+    global compteur_appris, mots_traduits, mots_disponibles
 
     # Vérifier s'il y a des mots déjà appris
     if len(mots_traduits) == 0:
         messagebox.showinfo("Mode Exercice", "Il n'y a pas encore de mots appris !")
         return
 
+    # Créer une nouvelle fenêtre pour le mode Exercice
+    exercice_window = tk.Toplevel(root)
+    exercice_window.title("Mode Exercice")
+    exercice_window.geometry("400x300")
+    exercice_window.config(bg="#ff6888")
+
     # Choisir un mot déjà appris aléatoirement
     mot = random.choice(mots_traduits)
 
-    # Demander à l'utilisateur la traduction du mot choisi
-    traduction_utilisateur = tk.simpledialog.askstring("Exercice", f"Quelle est la traduction de '{mot}' ?")
+    # Label pour afficher la question
+    exercice_label = tk.Label(exercice_window, text=f"Quelle est la traduction de '{mot}' ?", font=("Arial", 14), bg="#ff6888")
+    exercice_label.pack(pady=20)
 
-    # Vérifier si la traduction est correcte
-    if traduction_utilisateur and traduction_utilisateur.lower() == mots_traduction[mot].lower():
-        messagebox.showinfo("Exercice", "Bonne réponse !")
-        compteur_appris += 2  # Ajouter 2 au compteur
-        mots_traduits.remove(mot)  # Retirer le mot de la liste
-        mettre_a_jour_fenetre_principale()  # Mettre à jour la fenêtre principale
-    else:
-        messagebox.showinfo("Exercice", f"Mauvaise réponse. La traduction correcte est '{mots_traduction[mot]}'.")
+    # Entrée pour la réponse de l'utilisateur
+    traduction_entry = tk.Entry(exercice_window, font=("Arial", 14))
+    traduction_entry.pack(pady=10)
+
+    # Label pour afficher le résultat (bon ou mauvais)
+    resultat_label = tk.Label(exercice_window, text="", font=("Arial", 14), bg="#ff6888")
+    resultat_label.pack(pady=10)
+
+    def verifier_traduction():
+        nonlocal mot
+        traduction_utilisateur = traduction_entry.get()
+
+        # Vérifier si la traduction est correcte
+        if traduction_utilisateur.lower() == mots_traduction[mot].lower():
+            # Bonne réponse : afficher en vert
+            resultat_label.config(text="Bonne réponse !", fg="green")
+
+            # Ajouter le mot aux mots trouvés et le retirer des mots disponibles
+            mots_traduits.remove(mot)
+            if mot in mots_disponibles:
+                mots_disponibles.remove(mot)
+
+            compteur_appris += 2  # Ajouter 2 au compteur
+            mettre_a_jour_fenetre_principale()  # Mettre à jour la fenêtre principale
+        else:
+            # Mauvaise réponse : afficher en rouge
+            resultat_label.config(text=f"Mauvaise réponse. La traduction correcte est '{mots_traduction[mot]}'.", fg="red")
+
+    # Bouton pour valider la réponse
+    valider_button = tk.Button(exercice_window, text="Valider", font=("Arial", 14), command=verifier_traduction)
+    valider_button.pack(pady=20)
+
+
 
 # Ajouter une nouvelle liste pour stocker les mots traduits
 mots_traduits = []
 
 # Fonction pour le mode History
+# Fonction pour le mode History avec une fenêtre similaire à "Free"
 def mode_history():
     global blagues, blagues_racontees, compteur_histoire
 
@@ -139,28 +174,43 @@ def mode_history():
         messagebox.showinfo("Mode History", "Pas assez de points d'histoire !")
         return
 
+    # Créer une nouvelle fenêtre pour le mode History
+    history_window = tk.Toplevel(root)
+    history_window.title("Mode History")
+    history_window.geometry("400x300")
+    history_window.config(bg="#ff6888")
+
     # Vérifier s'il reste des blagues non racontées
     blagues_disponibles = [b for b in blagues if b not in blagues_racontees]
     if not blagues_disponibles:
         messagebox.showinfo("Mode History", "Toutes les blagues ont déjà été racontées !")
+        history_window.destroy()
         return
 
     # Choisir une blague aléatoire parmi celles non racontées
     blague = random.choice(blagues_disponibles)
 
-    # Demander une confirmation pour écouter la blague
-    confirmation = messagebox.askokcancel("Mode History", "Es-tu prêt pour une blague ?")
-    
-    if confirmation:
-        # Raconter la blague
-        messagebox.showinfo("Blague", f"{blague['question']}\n\nRéponse: {blague['reponse']}")
+    # Label pour poser la question de la blague
+    question_label = tk.Label(history_window, text=f"{blague['question']}", font=("Arial", 14), bg="#ff6888")
+    question_label.pack(pady=20)
+
+    # Bouton pour afficher la réponse
+    def montrer_reponse():
+        reponse_label = tk.Label(history_window, text=f" {blague['reponse']}", font=("Arial", 14), bg="#ff6888")
+        reponse_label.pack(pady=20)
 
         # Ajouter la blague à la liste des blagues racontées
         blagues_racontees.append(blague)
 
         # Décrémenter compteur_histoire et mettre à jour l'affichage
+        global compteur_histoire
         compteur_histoire -= 1
         h_label.config(text=str(compteur_histoire))
+
+    # Bouton pour afficher la réponse
+    reponse_button = tk.Button(history_window, text="Montrer la réponse", font=("Arial", 14), command=montrer_reponse)
+    reponse_button.pack(pady=20)
+
 
 # Création de la fenêtre principale
 root = tk.Tk()
