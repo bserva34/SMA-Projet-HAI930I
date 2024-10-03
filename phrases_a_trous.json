@@ -1,0 +1,34 @@
+{
+    "phrases": [
+        {
+            "phrase": "I ___ to the market.",
+            "reponse": "go",
+            "indice": "Verbe d'action",
+            "explication": "le verbe 'go' signifie aller quelque part."
+        },
+        {
+            "phrase": "She ___ a big house.",
+            "reponse": "has",
+            "indice": "Verbe de possession",
+            "explication": "le verbe 'has' signifie qu'elle possède la maison."
+        },
+        {
+            "phrase": "They ___ playing football.",
+            "reponse": "are",
+            "indice": "Verbe d'action",
+            "explication": "le verbe 'are' signifie que l'action se déroule en ce moment"
+        },
+        {
+            "phrase": "You ___ to eat french fries.",
+            "reponse": "like",
+            "indice": "Verbe d'appréciation léger",
+            "explication": "dans ce context, 'like' signifie bien aimer quelque chose"
+        },
+        {
+            "phrase": "My teacher is 26 years ___.",
+            "reponse": "old",
+            "indice": "adjectif ",
+            "explication": "ici l'expression complète 'years old' signifie être agé de "
+        }
+    ]
+}

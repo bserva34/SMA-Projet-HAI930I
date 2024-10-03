@@ -26,9 +26,25 @@ mots_traduction = charger_mots_traduction('mots_traduction.json')
 # Liste des mots disponibles (initialement tous les mots)
 mots_disponibles = list(mots_traduction.keys())
 
+# Fonction pour charger les phrases à trous depuis un fichier JSON
+def charger_phrases_trous(fichier):
+    with open(fichier, 'r', encoding='utf-8') as f:
+        return json.load(f)['phrases']
+
+# Charger les phrases depuis le fichier JSON
+phrases_a_trous = charger_phrases_trous('phrases_a_trous.json')
+
+def charger_phrases_construction(fichier):
+    with open(fichier, 'r', encoding='utf-8') as f:
+        return json.load(f)['phrases']
+
+# Charger les phrases de construction depuis le fichier JSON
+phrases_construction = charger_phrases_construction('phrases_construction.json')
+
+
 # Variables pour compter les mots appris et le compteur d'histoires
 compteur_appris = 0
-compteur_histoire = 2
+compteur_histoire = 0
 
 # Fonction pour mettre à jour la fenêtre principale
 def mettre_a_jour_fenetre_principale():
@@ -107,57 +123,198 @@ def mode_free():
 # Fonction pour le mode Exercice avec une fenêtre similaire à "Free"
 # Fonction pour le mode Exercice avec feedback visuel
 def mode_exercice():
+    # Créer un sous-menu avec deux boutons pour "Traduction" et "Fill the hole"
+    exercice_menu = tk.Toplevel(root)
+    exercice_menu.title("Mode Exercice")
+    exercice_menu.geometry("400x300")
+    exercice_menu.config(bg="#ff6888")
+
+    traduction_button = tk.Button(exercice_menu, text="Traduction", font=("Arial", 16), command=mode_exercice_traduction)
+    traduction_button.pack(pady=20)
+
+    fill_hole_button = tk.Button(exercice_menu, text="Fill the hole", font=("Arial", 16), command=mode_fill_the_hole)
+    fill_hole_button.pack(pady=20)
+
+    sentence_button = tk.Button(exercice_menu, text="Sentence Construction", font=("Arial", 16), command=mode_sentence_construction)
+    sentence_button.pack(pady=20)
+
+
+# Renommer la fonction existante en mode_exercice_traduction
+def mode_exercice_traduction():
     global compteur_appris, mots_traduits, mots_disponibles
 
-    # Vérifier s'il y a des mots déjà appris
     if len(mots_traduits) == 0:
         messagebox.showinfo("Mode Exercice", "Il n'y a pas encore de mots appris !")
         return
 
-    # Créer une nouvelle fenêtre pour le mode Exercice
     exercice_window = tk.Toplevel(root)
-    exercice_window.title("Mode Exercice")
+    exercice_window.title("Mode Traduction")
     exercice_window.geometry("400x300")
     exercice_window.config(bg="#ff6888")
 
-    # Choisir un mot déjà appris aléatoirement
     mot = random.choice(mots_traduits)
-
-    # Label pour afficher la question
     exercice_label = tk.Label(exercice_window, text=f"Quelle est la traduction de '{mot}' ?", font=("Arial", 14), bg="#ff6888")
     exercice_label.pack(pady=20)
 
-    # Entrée pour la réponse de l'utilisateur
     traduction_entry = tk.Entry(exercice_window, font=("Arial", 14))
     traduction_entry.pack(pady=10)
 
-    # Label pour afficher le résultat (bon ou mauvais)
     resultat_label = tk.Label(exercice_window, text="", font=("Arial", 14), bg="#ff6888")
     resultat_label.pack(pady=10)
 
+    # Désactiver le bouton "Valider" si la réponse est correcte
     def verifier_traduction():
+        global compteur_appris, mots_traduits, mots_disponibles
         nonlocal mot
         traduction_utilisateur = traduction_entry.get()
 
-        # Vérifier si la traduction est correcte
         if traduction_utilisateur.lower() == mots_traduction[mot].lower():
-            # Bonne réponse : afficher en vert
             resultat_label.config(text="Bonne réponse !", fg="green")
-
-            # Ajouter le mot aux mots trouvés et le retirer des mots disponibles
+            compteur_appris+=2
+            mettre_a_jour_fenetre_principale()
             mots_traduits.remove(mot)
+            
+            # Désactiver le bouton "Valider"
+            valider_button.config(state=tk.DISABLED)
+            
             if mot in mots_disponibles:
                 mots_disponibles.remove(mot)
 
-            compteur_appris += 2  # Ajouter 2 au compteur
-            mettre_a_jour_fenetre_principale()  # Mettre à jour la fenêtre principale
+            
         else:
-            # Mauvaise réponse : afficher en rouge
             resultat_label.config(text=f"Mauvaise réponse. La traduction correcte est '{mots_traduction[mot]}'.", fg="red")
 
-    # Bouton pour valider la réponse
+    # Passer à un nouveau mot
+    def suivant():
+        nonlocal mot
+        if len(mots_traduits) == 0:
+            messagebox.showinfo("Mode Exercice", "Tous les mots ont été traduits !")
+            exercice_window.destroy()  # Fermer la fenêtre si plus de mots disponibles
+            return
+
+        mot = random.choice(mots_traduits)
+        exercice_label.config(text=f"Quelle est la traduction de '{mot}' ?")
+        traduction_entry.delete(0, tk.END)
+        resultat_label.config(text="")
+        valider_button.config(state=tk.NORMAL)  # Réactiver le bouton "Valider"
+
+    # Bouton "Valider" pour vérifier la traduction
     valider_button = tk.Button(exercice_window, text="Valider", font=("Arial", 14), command=verifier_traduction)
+    valider_button.pack(pady=10)
+
+    # Bouton "Suivant" pour passer à un autre mot, même si la réponse est incorrecte
+    suivant_button = tk.Button(exercice_window, text="Suivant", font=("Arial", 14), command=suivant)
+    suivant_button.pack(pady=10)
+
+
+
+
+
+def mode_fill_the_hole():
+    fill_window = tk.Toplevel(root)
+    fill_window.title("Mode Fill the hole")
+    fill_window.geometry("600x400")
+    fill_window.config(bg="#ff6888")
+
+    # Sélectionner une phrase aléatoire parmi celles chargées depuis le fichier JSON
+    phrase = random.choice(phrases_a_trous)
+
+    # Affichage de la phrase et de l'indice
+    phrase_label = tk.Label(fill_window, text=phrase["phrase"], font=("Arial", 14), bg="#ff6888")
+    phrase_label.pack(pady=20)
+
+    indice_label = tk.Label(fill_window, text=f"Indice: {phrase['indice']}", font=("Arial", 12), bg="#ff6888", fg="blue")
+    indice_label.pack(pady=10)
+
+    reponse_entry = tk.Entry(fill_window, font=("Arial", 14))
+    reponse_entry.pack(pady=10)
+
+    resultat_label = tk.Label(fill_window, text="", font=("Arial", 14), bg="#ff6888")
+    resultat_label.pack(pady=10)
+
+    explication_label = tk.Label(fill_window, text="", font=("Arial", 12), bg="#ff6888", fg="cyan")
+    explication_label.pack(pady=10)
+
+    def verifier_reponse():
+        global compteur_appris
+        reponse_utilisateur = reponse_entry.get()
+
+        if reponse_utilisateur.lower() == phrase["reponse"].lower():
+            resultat_label.config(text="Bonne réponse !", fg="green")
+            compteur_appris+=3
+            mettre_a_jour_fenetre_principale()
+        else:
+            resultat_label.config(text=f"Mauvaise réponse. La réponse correcte est '{phrase['reponse']}'.", fg="red")
+
+        explication_label.config(text=f"Explication: {phrase['explication']}")
+
+        # Remplacer le bouton "Valider" par "Suivant"
+        valider_button.pack_forget()
+        suivant_button.pack(pady=20)
+
+    def suivant():
+        # Choisir une nouvelle phrase et réinitialiser les éléments
+        nonlocal phrase
+        phrase = random.choice(phrases_a_trous)
+        phrase_label.config(text=phrase["phrase"])
+        indice_label.config(text=f"Indice: {phrase['indice']}")
+        reponse_entry.delete(0, tk.END)
+        resultat_label.config(text="")
+        explication_label.config(text="")
+        suivant_button.pack_forget()
+        valider_button.pack(pady=20)
+
+    valider_button = tk.Button(fill_window, text="Valider", font=("Arial", 14), command=verifier_reponse)
     valider_button.pack(pady=20)
+
+    suivant_button = tk.Button(fill_window, text="Suivant", font=("Arial", 14), command=suivant)
+    suivant_button.pack_forget()  # Masquer le bouton "Suivant" jusqu'à validation
+
+def mode_sentence_construction():
+    global phrases_construction
+
+    # Vérifier s'il y a des phrases disponibles
+    if len(phrases_construction) == 0:
+        messagebox.showinfo("Mode Sentence Construction", "Aucune phrase disponible pour le moment.")
+        return
+
+    # Choisir une phrase aléatoire parmi celles disponibles
+    phrase = random.choice(phrases_construction)
+
+    # Créer une nouvelle fenêtre pour cet exercice
+    sentence_window = tk.Toplevel(root)
+    sentence_window.title("Sentence Construction")
+    sentence_window.geometry("600x500")
+    sentence_window.config(bg="#ff6888")
+
+    # Afficher la phrase avec un trou
+    phrase_label = tk.Label(sentence_window, text=phrase["phrase"], font=("Arial", 14), bg="#ff6888")
+    phrase_label.pack(pady=20)
+
+    # Label pour afficher l'explication après sélection
+    explication_label = tk.Label(sentence_window, text="", font=("Arial", 12), bg="#ff6888", fg="blue")
+    explication_label.pack(pady=20)
+
+    # Fonction pour afficher l'explication en fonction du mot choisi
+    def afficher_explication(option):
+        explication = phrase["options"][option]
+        explication_label.config(text=explication)
+
+    # Création des boutons pour chaque option
+    for option in phrase["options"]:
+        option_button = tk.Button(sentence_window, text=option, font=("Arial", 14),
+                                  command=lambda opt=option: afficher_explication(opt))
+        option_button.pack(pady=5)
+
+    # Bouton "Suivant" pour passer à une nouvelle phrase
+    def suivant():
+        sentence_window.destroy()  # Fermer la fenêtre actuelle
+        mode_sentence_construction()  # Ouvrir une nouvelle phrase
+
+    suivant_button = tk.Button(sentence_window, text="Suivant", font=("Arial", 14), command=suivant)
+    suivant_button.pack(pady=20)
+
+
 
 
 
@@ -203,7 +360,12 @@ def mode_history():
         blagues_racontees.append(blague)
 
         # Décrémenter compteur_histoire et mettre à jour l'affichage
+
         global compteur_histoire
+        # Vérifier si compteur_histoire est supérieur à 0
+        if compteur_histoire <= 0:
+            messagebox.showinfo("Mode History", "Pas assez de points d'histoire !")
+            return
         compteur_histoire -= 1
         h_label.config(text=str(compteur_histoire))
 
@@ -219,13 +381,13 @@ root.geometry("800x600")
 root.config(bg="#ff6888")
 
 # Ajout des boutons représentant les modes
-button_free = tk.Button(root, text="FREE", bg="cyan", font=("Arial", 16), command=mode_free)
+button_free = tk.Button(root, text="LESSON", bg="cyan", font=("Arial", 16), command=mode_free)
 button_free.place(x=150, y=250, width=150, height=150)
 
 button_exercice = tk.Button(root, text="EXERCICE", bg="yellow", font=("Arial", 16), command=mode_exercice)
 button_exercice.place(x=325, y=250, width=150, height=150)
 
-button_history = tk.Button(root, text="HISTORY", bg="red", font=("Arial", 16), command=mode_history)
+button_history = tk.Button(root, text="JOKES", bg="red", font=("Arial", 16), command=mode_history)
 button_history.place(x=500, y=250, width=150, height=150)
 
 # Ajout de quelques éléments graphiques pour l'ambiance

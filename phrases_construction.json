@@ -1,0 +1,24 @@
+{
+    "phrases": [
+        {
+            "phrase": "I'm eating a banana, I feel ....",
+            "options": {
+                "happy": "Manger une banane peut vous rendre heureux si vous aimez les fruits.",
+                "hungry": "Si vous venez de commencer à manger, vous pourriez encore avoir faim.",
+                "angry": "Il est peu probable de se sentir en colère en mangeant une banane, mais cela pourrait être dû à une mauvaise journée.",
+                "sad": "Peut-être que la banane ne suffit pas pour améliorer votre humeur.",
+                "exciting": "Si vous adorez les bananes, cela peut être une expérience excitante pour vous."
+            }
+        },
+        {
+            "phrase": "It's raining outside, so I will ....",
+            "options": {
+                "run": "Vous aimez peut-être courir sous la pluie, même si ce n'est pas très courant.",
+                "stay": "La plupart des gens préfèrent rester à l'intérieur quand il pleut.",
+                "dance": "Danser sous la pluie peut être amusant pour certains, une belle façon de profiter du moment.",
+                "drive": "Conduire sous la pluie peut être dangereux, il faut donc être prudent.",
+                "cook": "Rester à l'intérieur pendant la pluie est un bon moment pour cuisiner quelque chose de chaud."
+            }
+        }
+    ]
+}
