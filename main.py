@@ -48,7 +48,7 @@ compteur_histoire = 0
 
 # Fonction pour mettre à jour la fenêtre principale
 def mettre_a_jour_fenetre_principale():
-    global compteur_histoire
+    global compteur_histoire, compteur_appris
     compteur_label.config(text=str(compteur_appris))
 
     # Vérification pour incrémenter le compteur_histoire chaque fois que compteur_appris dépasse une dizaine
@@ -176,7 +176,7 @@ def mode_exercice_traduction():
             
             # Désactiver le bouton "Valider"
             valider_button.config(state=tk.DISABLED)
-            
+            mettre_a_jour_fenetre_principale()
             if mot in mots_disponibles:
                 mots_disponibles.remove(mot)
 
