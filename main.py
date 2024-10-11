@@ -116,7 +116,7 @@ def mode_free():
     # Fonction pour passer à une nouvelle série de mots
     def suivant(window):
         window.destroy()  # Fermer la fenêtre actuelle
-        mettre_a_jour_fenetre_principale()  # Mettre à jour la fenêtre principale
+        #mettre_a_jour_fenetre_principale()  # Mettre à jour la fenêtre principale
         mode_free()  # Charger une nouvelle fenêtre avec de nouveaux mots
 
 # Fonction pour le mode Exercice
@@ -170,7 +170,7 @@ def mode_exercice_traduction():
 
         if traduction_utilisateur.lower() == mots_traduction[mot].lower():
             resultat_label.config(text="Bonne réponse !", fg="green")
-            compteur_appris+=2
+            compteur_appris+=1
             mettre_a_jour_fenetre_principale()
             mots_traduits.remove(mot)
             
@@ -241,7 +241,7 @@ def mode_fill_the_hole():
 
         if reponse_utilisateur.lower() == phrase["reponse"].lower():
             resultat_label.config(text="Bonne réponse !", fg="green")
-            compteur_appris+=3
+            compteur_appris+=1
             mettre_a_jour_fenetre_principale()
         else:
             resultat_label.config(text=f"Mauvaise réponse. La réponse correcte est '{phrase['reponse']}'.", fg="red")
