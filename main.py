@@ -376,7 +376,7 @@ def mode_history():
 
 # Création de la fenêtre principale
 root = tk.Tk()
-root.title("Apprentissage de l'anglais")
+root.title("EAS-ENGLISH")
 root.geometry("800x600")
 root.config(bg="#ff6888")
 
